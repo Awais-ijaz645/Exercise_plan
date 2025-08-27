@@ -1,12 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Apple, Target, Scale, TrendingUp, Coffee, Sun, Moon, Utensils } from 'lucide-react';
 import { mealPlans } from '../data/mealPlans';
 import { MealPlan } from '../types';
 
-export const Nutrition: React.FC = () => {
+interface NutritionProps {
+  selectedPlanId?: string | null;
+}
+
+export const Nutrition: React.FC<NutritionProps> = ({ selectedPlanId }) => {
   const [selectedGoal, setSelectedGoal] = useState<'weight_loss' | 'muscle_gain' | 'balanced'>('weight_loss');
   const [selectedMealPlan, setSelectedMealPlan] = useState<MealPlan | null>(null);
+  const planRefs = React.useRef<{[key: string]: HTMLDivElement | null}>({});
 
   const goals = [
     {
@@ -41,6 +46,27 @@ export const Nutrition: React.FC = () => {
     dinner: Moon,
     snack: Coffee
   };
+
+  useEffect(() => {
+    if (selectedPlanId) {
+      const plan = mealPlans.find(p => p.id === selectedPlanId);
+      if (plan) {
+        setSelectedGoal(plan.goal);
+        setSelectedMealPlan(plan);
+      }
+    }
+  }, [selectedPlanId]);
+
+  useEffect(() => {
+    if (selectedMealPlan && planRefs.current[selectedMealPlan.id]) {
+      setTimeout(() => { // Timeout to allow the goal to switch and card to render
+        planRefs.current[selectedMealPlan.id]?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+      }, 100);
+    }
+  }, [selectedMealPlan]);
 
   const filteredMealPlans = mealPlans.filter(plan => plan.goal === selectedGoal);
 
@@ -104,6 +130,7 @@ export const Nutrition: React.FC = () => {
           >
             {filteredMealPlans.map((plan) => (
               <motion.div
+                ref={el => planRefs.current[plan.id] = el}
                 key={plan.id}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}

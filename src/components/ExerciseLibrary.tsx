@@ -1,18 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Filter, Clock, Flame, Target, ChevronRight } from 'lucide-react';
 import { exercises } from '../data/exercises';
 import { Exercise } from '../types';
 
-export const ExerciseLibrary: React.FC = () => {
+interface ExerciseLibraryProps {
+  selectedExerciseId?: string | null;
+}
+
+export const ExerciseLibrary: React.FC<ExerciseLibraryProps> = ({ selectedExerciseId }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
+  const exerciseRefs = React.useRef<{[key: string]: HTMLDivElement | null}>({});
 
   const categories = ['All', 'Cardio', 'Strength', 'Flexibility', 'Yoga', 'HIIT'];
 
   const filteredExercises = selectedCategory === 'All' 
     ? exercises 
     : exercises.filter(exercise => exercise.category === selectedCategory);
+
+  useEffect(() => {
+    if (selectedExerciseId) {
+      const exercise = exercises.find(ex => ex.id === selectedExerciseId);
+      if (exercise) {
+        setSelectedExercise(exercise);
+      }
+    }
+  }, [selectedExerciseId]);
+
+  useEffect(() => {
+    if (selectedExercise && exerciseRefs.current[selectedExercise.id]) {
+      exerciseRefs.current[selectedExercise.id]?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }
+  }, [selectedExercise]);
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -79,6 +102,7 @@ export const ExerciseLibrary: React.FC = () => {
           <AnimatePresence>
             {filteredExercises.map((exercise) => (
               <motion.div
+                ref={el => exerciseRefs.current[exercise.id] = el}
                 key={exercise.id}
                 layout
                 initial={{ opacity: 0, scale: 0.8 }}

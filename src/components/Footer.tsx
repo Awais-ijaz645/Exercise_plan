@@ -2,7 +2,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Youtube } from 'lucide-react';
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  onPageChange: (page: string) => void;
+}
+
+export const Footer: React.FC<FooterProps> = ({ onPageChange }) => {
   const socialLinks = [
     { icon: Facebook, href: '#', label: 'Facebook' },
     { icon: Twitter, href: '#', label: 'Twitter' },
@@ -11,12 +15,12 @@ export const Footer: React.FC = () => {
   ];
 
   const quickLinks = [
-    { name: 'About Us', href: '#' },
-    { name: 'Exercises', href: '#' },
-    { name: 'Nutrition', href: '#' },
-    { name: 'Trainers', href: '#' },
-    { name: 'Blog', href: '#' },
-    { name: 'Support', href: '#' }
+    { id: 'home', name: 'Home' },
+    { id: 'exercises', name: 'Exercises' },
+    { id: 'calculator', name: 'Calculator' },
+    { id: 'nutrition', name: 'Nutrition' },
+    { id: 'dashboard', name: 'Dashboard' },
+    { id: 'trainers', name: 'Trainers' },
   ];
 
   const contactInfo = [
@@ -72,13 +76,13 @@ export const Footer: React.FC = () => {
             <ul className="space-y-2">
               {quickLinks.map((link, index) => (
                 <li key={index}>
-                  <motion.a
-                    href={link.href}
+                  <motion.button
+                    onClick={() => onPageChange(link.id)}
                     whileHover={{ x: 5 }}
-                    className="text-gray-300 hover:text-white transition-colors"
+                    className="text-gray-300 hover:text-white transition-colors text-left w-full"
                   >
                     {link.name}
-                  </motion.a>
+                  </motion.button>
                 </li>
               ))}
             </ul>
@@ -138,7 +142,7 @@ export const Footer: React.FC = () => {
         >
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-gray-400 text-center md:text-left">
-              © 2024 FitPro. All rights reserved. Made with ❤️ for your fitness journey.
+              2024 FitPro. All rights reserved. Made with for your fitness journey.
             </p>
             <div className="flex space-x-6 text-sm">
               <motion.a
